@@ -72,7 +72,7 @@ namespace NEA_Matrix_Tester
                 {
                     for (int j = 0; j < matrix.GetLength(0); j++)
                     {
-                        Console.Write(matrix[i,j]);
+                        Console.Write(matrix[i,j] + " ");
                     }
                     Console.WriteLine();
                 }
@@ -121,6 +121,7 @@ namespace NEA_Matrix_Tester
                 {
                     BigFloat[,] cofactorMatrix = Cofactor(matrix, row, coloum);
                     BigFloat[,] transposedMatrix = Transpose(matrix);
+                    Console.ReadKey();
                     Console.WriteLine("The transposed matrix is:");
                     for (int i = 0; i < transposedMatrix.GetLength(0); i++)
                     {
@@ -144,12 +145,119 @@ namespace NEA_Matrix_Tester
                     Console.WriteLine();
                 }
                 Console.ReadKey();
+                Console.Clear();
                 
             }
             
-            
-            
+            List<(long,double)> linear = new List<(long,double)>();
+            List<(long, double)> quadratic = new List<(long, double)>();
+            List<(long, double)> cubic = new List<(long, double)>();
+            List<(long, double)> quartic = new List<(long, double)>();
+
+
+            for(int i = 0; i <=15; i ++)
+            {
+                linear.Add((i,-i+6 ));
+                quadratic.Add((i, 4 * Math.Pow(i, 2) - 3 * i + 5));
+                cubic.Add((i, -Math.Pow(i, 3) - 7 * Math.Pow(i, 2) - 5 * i - 3));
+                quartic.Add((i, 8 * Math.Pow(i, 4) - 6 * Math.Pow(i, 3) - 9 * Math.Pow(i, 2) + 3 * i + 3));
+            }
+            List<List<(long, double)>> listOfCurves = new List<List<(long, double)>>();
+            listOfCurves.Add(linear);
+            listOfCurves.Add(quadratic);
+            listOfCurves.Add(cubic);
+            listOfCurves.Add(quartic);
+
+            for(int i = 0; i < listOfCurves.Count; i++)
+            {
+                List<double> coeffcients = DoPolynomialRegressionForSpecificOrder(listOfCurves[i], i + 1);
+
+            }
+
             Console.ReadKey();
+        }
+        public static List<double> DoPolynomialRegressionForSpecificOrder(List<(long, double)> points,int degree)
+        {
+            List<List<double>> ListOfCoefficients = new List<List<double>>();
+
+            for (int x = degree; x <= degree; x++)
+            {
+                List<double> coefficients = new List<double>();
+
+                BigFloat[,] matrixA = new BigFloat[x + 1, x + 1];
+                BigFloat[] matrixB = new BigFloat[x + 1];
+
+                bool outOFRange = false;
+
+                for (int i = 0; i < matrixA.GetLength(0); i++)
+                {
+                    for (int j = 0; j < matrixA.GetLength(0); j++)
+                    {
+                        double sumOfx = 0;
+
+                        foreach ((long, double) coordinate in points)
+                        {
+                            sumOfx += Math.Pow(coordinate.Item1, i + j);
+                        }
+
+                        matrixA[i, j] = sumOfx;
+                    }
+
+                    double sumOfxy = 0;
+
+                    foreach ((long, double) coordinate in points)
+                    {
+                        sumOfxy += Math.Pow(coordinate.Item1, i) * coordinate.Item2;
+                    }
+
+                    matrixB[i] = sumOfxy;
+                }
+
+                BigFloat[,] inverseMatrixA = Inverse(matrixA);
+
+                for (int i = 0; i < inverseMatrixA.GetLength(0); i++)
+                {
+                    double sum = 0;
+
+                    for (int j = 0; j < inverseMatrixA.GetLength(0); j++)
+                    {
+                        if (inverseMatrixA[i, j] * matrixB[j] < double.MinValue)
+                        {
+                            outOFRange = true;
+                        }
+                        else
+                        {
+                            sum += (double)(inverseMatrixA[i, j] * matrixB[j]);
+                        }
+
+                    }
+
+                    coefficients.Add(sum);
+                }
+
+                if (!outOFRange)
+                {
+                    Console.WriteLine("Degree " + x + " polynomial has been succesfully generated");
+                    ListOfCoefficients.Add(coefficients);
+                }
+            }
+
+            int bestLine = 0;
+            double bestVariance = double.MaxValue;
+
+            for (int i = 0; i < ListOfCoefficients.Count; i++)
+            {
+                SumOfResiduals s = new SumOfResiduals(points, ListOfCoefficients[i]);
+                double variance = s.Residuals();
+
+                if (bestVariance > variance)
+                {
+                    bestVariance = variance;
+                    bestLine = i;
+                }
+            }
+
+            return ListOfCoefficients[bestLine];
         }
         public static List<double> DoPolynomialRegression(List<(long, double)> points)
         {
