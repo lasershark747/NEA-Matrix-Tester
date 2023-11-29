@@ -51,16 +51,12 @@ namespace NEA_Matrix_Tester
         {
             List<BigFloat[,]> listOfMatrices = new List<BigFloat[,]>();
 
-
             BigFloat[,] matrix2x2 = { { 3, 2 }, { 5, 4 } } ;
             BigFloat[,] matrix3x3 = { { 8, 5, 2 }, { 3, 6, 3 }, { 4, 6, 8 } };
             BigFloat[,] matrix4x4 = { { 3, 6, 9, 5 }, {4,9,6,6},{7,3,0,1}, {2,3,2,5}};
             BigFloat[,] matrix5x5 = { { 8,0,6,6,4}, {6,8,8,3,7}, {0,3,2,1,4}, {6,5,4,9,0},{ 1,4,5,4,5} };
 
             listOfMatrices.Add(matrix2x2); listOfMatrices.Add(matrix3x3); listOfMatrices.Add(matrix4x4);listOfMatrices.Add(matrix5x5);
-
-
-
 
             BigFloat coloum = 1;
             BigFloat row = 1;
@@ -76,7 +72,7 @@ namespace NEA_Matrix_Tester
                     }
                     Console.WriteLine();
                 }
-                
+                Console.WriteLine();
                 BigFloat[,] inverseMatix = Inverse(matrix);
                 Console.ReadKey();
                 Console.WriteLine("The inverse matrix is:");
@@ -93,9 +89,9 @@ namespace NEA_Matrix_Tester
                         }
                         string[] list = num.Split('-');
                         num = string.Concat(list);
-                        for (int k = 0; k < 6 && k<num.Length; k++)
+                        for (int k = 0; k < 8 && k<num.Length; k++)
                         {
-                            if (k == 5 && int.Parse(num[k + 1].ToString()) > 4)
+                            if (k == 7 && int.Parse(num[k + 1].ToString()) > 4)
                             {
                                 int buffer = int.Parse(num[k].ToString());
                                 Console.Write(buffer+1);
@@ -154,7 +150,6 @@ namespace NEA_Matrix_Tester
             List<(long, double)> cubic = new List<(long, double)>();
             List<(long, double)> quartic = new List<(long, double)>();
 
-
             for(int i = 0; i <=15; i ++)
             {
                 linear.Add((i,-i+6 ));
@@ -162,17 +157,29 @@ namespace NEA_Matrix_Tester
                 cubic.Add((i, -Math.Pow(i, 3) - 7 * Math.Pow(i, 2) - 5 * i - 3));
                 quartic.Add((i, 8 * Math.Pow(i, 4) - 6 * Math.Pow(i, 3) - 9 * Math.Pow(i, 2) + 3 * i + 3));
             }
-            List<List<(long, double)>> listOfCurves = new List<List<(long, double)>>();
-            listOfCurves.Add(linear);
-            listOfCurves.Add(quadratic);
-            listOfCurves.Add(cubic);
-            listOfCurves.Add(quartic);
+            List<List<(long, double)>> listOfCurves = new List<List<(long, double)>>
+            {
+                linear,
+                quadratic,
+                cubic,
+                quartic
+            };
 
             for(int i = 0; i < listOfCurves.Count; i++)
             {
                 List<double> coeffcients = DoPolynomialRegressionForSpecificOrder(listOfCurves[i], i + 1);
-
+                Console.WriteLine("Points generate the curve:");
+                Console.Write("y = " + Math.Round(coeffcients[0]) + " + " + Math.Round(coeffcients[1]) + "x");
+                for(int j=2;j<coeffcients.Count; j++)
+                {
+                    Console.Write(" + " + Math.Round(coeffcients[j]) +"x^" + j);
+                }
+                Console.WriteLine();
+                Console.ReadKey();
+                Console.Clear();
             }
+
+
 
             Console.ReadKey();
         }
@@ -237,7 +244,6 @@ namespace NEA_Matrix_Tester
 
                 if (!outOFRange)
                 {
-                    Console.WriteLine("Degree " + x + " polynomial has been succesfully generated");
                     ListOfCoefficients.Add(coefficients);
                 }
             }
